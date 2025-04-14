@@ -1,0 +1,55 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+
+group Регистрация
+    Клиент -> API_Gateway: Запрос на регистрацию нового пользователя
+    API_Gateway -> Security_Service: Переадресация в сервис Security
+    alt
+    Security_Service -> Data_Provider: Сохранение данных нового пользователя
+    Data_Provider -->> Security_Service: Ответ успешного сохранения
+    Security_Service -->> Клиент: Ответ с JWT токеном
+    else  Пользователь уже существует
+    Data_Provider -->> Security_Service: Ошибка сохранения данных
+    Security_Service -->> Клиент: Ошибка регистрации
+    end
+
+end
+
+autonumber
+group Авторизация
+    Клиент -> API_Gateway: Запрос на авторизацию
+    API_Gateway -> Security_Service: Переадресация в сервис Security
+    alt
+    Security_Service -> Data_Provider: Поиск данных пользователя
+    Data_Provider -->> Security_Service: Ответ с данными пользователя
+    Security_Service -> Security_Service: Проверка данных пользователя
+    Security_Service -->> Клиент: Ответ с JWT токеном
+    else  Пользователь не найден
+    Data_Provider -->> Security_Service: Ошибка: пользователь не найден
+    Security_Service -->> Клиент: Ответ с ошибкой
+    else Неверные данные
+    Security_Service -->> Клиент: Ошибка: Неверный пароль
+    end
+end
+
+autonumber
+group Обновление данных пользователя
+    Клиент -> API_Gateway: Запрос на обновление данных
+    API_Gateway -> Security_Service: Переадресация в сервис Security
+    alt
+    Security_Service -> Data_Provider: Поиск данных пользователя
+    Data_Provider -->> Security_Service: Ответ с данными пользователя
+    Security_Service -> Data_Provider: Обновление данных пользователя
+     Data_Provider -->> Security_Service: Ответ об успешном обновлении
+    Security_Service -->> Клиент: Ответ
+    else  Пользователь не найден
+    Data_Provider -->> Security_Service: Ошибка: пользователь не найден
+    Security_Service -->> Клиент: Ответ с ошибкой
+    else Не удалось обновить данные
+    Data_Provider -->> Security_Service: Ошибка обновления данных
+    Security_Service -->> Клиент: Ответ с ошибкой
+    end
+end
+@enduml
