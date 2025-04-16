@@ -1,0 +1,44 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+group Работа с маршрутами
+    Клиент -> API_Gateway: Запрос
+    alt
+    API_Gateway -> API_Gateway: Проверка доступа к ресурсу на основе JWT
+    API_Gateway -> Data_Provider: Переадресация в сервис Data Provider
+    alt
+    Data_Provider -> Data_Provider: Обработка запроса
+    Data_Provider -->> Клиент: Успешный ответ
+    else Ошибка обработки запроса
+    Data_Provider -->> Клиент:  Ответ с ошибкой
+    end
+    else Невалидный токен или отсутствует доступ к ресурсу
+    API_Gateway -->> Клиент: Ответ с ошибкой
+    end
+end
+
+autonumber
+group Взаимодействие с личной информацией
+    Клиент -> API_Gateway: Запрос
+    alt
+    API_Gateway -> API_Gateway: Проверка доступа к ресурсу на основе JWT
+    API_Gateway -> Data_Provider: Переадресация в сервис Data Provider
+    alt
+    Data_Provider -> Data_Provider: Обработка запроса
+    Data_Provider -->> Клиент: Успешный ответ
+    else Ошибка обработки запроса
+    Data_Provider -->> Клиент:  Ответ с ошибкой
+    end
+    else Невалидный токен или отсутствует доступ к ресурсу
+    API_Gateway -->> Клиент: Ответ с ошибкой
+    end
+end
+
+legend right
+|= Участник |= Описание |
+| Клиент | Мобильное приложение пользователя |
+| API_Gateway | Центральная точка входа, проверяет доступ по JWT |
+| Data_Provider | Сервис для работы с данными |
+endlegend
+@enduml
