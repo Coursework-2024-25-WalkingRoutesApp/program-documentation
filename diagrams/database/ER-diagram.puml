@@ -1,0 +1,97 @@
+@startuml
+
+entity "user" {
+  * id : uuid <<generated>> <<PK>>
+  --
+  * user_name : varchar
+  * email : varchar
+  * password : varchar
+  photo_url : varchar
+  * role : varchar <<default('DEFAULT')>>
+}
+
+entity route {
+  * id : uuid <<generated>> <<PK>>
+  --
+  user_id : uuid <<FK>>
+  route_name : varchar
+  description : varchar
+  duration : double precision
+  length : double precision
+  start_point : varchar
+  end_point : varchar
+  route_preview : varchar
+  is_draft : boolean
+  last_modified_at : timestamp
+  created_at : timestamp
+}
+
+entity category {
+  * category_name : varchar <<PK>>
+}
+
+entity route_category {
+  * route_id : uuid <<FK>>
+  * category_name : varchar <<FK>>
+}
+
+entity route_coordinate {
+  * id : uuid <<generated>> <<PK>>
+  --
+  route_id : uuid <<FK>>
+  point : geometry(Point, 4326)
+  order_number : integer
+  title : varchar
+  description : varchar
+}
+
+entity route_session {
+  * id : uuid <<generated>> <<PK>>
+  --
+  user_id : uuid <<FK>>
+  route_id : uuid <<FK>>
+  is_finished : boolean
+  started_at : timestamp
+  ended_at : timestamp
+}
+
+entity user_checkpoint {
+  * route_session_id : uuid <<FK>>
+  * coordinate_id : uuid <<FK>>
+  --
+  created_at : timestamp
+}
+
+entity review {
+  * user_id : uuid <<FK>>
+  * route_id : uuid <<FK>>
+  --
+  mark : integer
+  review_text : varchar
+  created_at : timestamp
+}
+
+entity favorite {
+  * user_id : uuid <<FK>>
+  * route_id : uuid <<FK>>
+}
+
+' Relationships
+user ||--o{ route
+user ||--o{ route_session
+user ||--o{ review
+user ||--o{ favorite
+
+route ||--o{ route_session
+route ||--o{ route_category
+route ||--o{ route_coordinate
+route ||--o{ review
+route ||--o{ favorite
+
+category ||--o{ route_category
+
+route_session ||--o{ user_checkpoint
+
+route_coordinate ||--o{ user_checkpoint
+
+@enduml
